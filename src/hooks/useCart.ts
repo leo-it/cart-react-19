@@ -10,7 +10,7 @@ type CartAction =
 
 export const useCart = () => {
   const [cart, setCart] = useState<Product[]>([]);
-  const [optimisticCart, setOptimisticCart] = useOptimistic(cart, (state, action:CartAction) => {
+  const [optimisticCart, setOptimisticCart] = useOptimistic(cart, (state, action: CartAction) => {
     switch (action.type) {
       case "add":
         const existingItem = state.find((item) => item.id === action.product.id);
@@ -46,6 +46,8 @@ export const useCart = () => {
   useEffect(() => {
     if (cart.length > 0) {
       localStorage.setItem("cart", JSON.stringify(cart));
+    } else {
+      localStorage.removeItem("cart");
     }
   }, [cart]);
 

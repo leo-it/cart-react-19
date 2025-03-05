@@ -14,8 +14,10 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { Product } from "./types/types";
+import Skeleton from "@mui/material/Skeleton";
+import { Suspense } from "react";
 import { fetchProducts } from "./utils/api";
 import { useCart } from "./hooks/useCart";
 
@@ -101,7 +103,7 @@ function App() {
                         value={num1}
                         onChange={handleNum1Change}
                         fullWidth
-                        margin="normal" 
+                        margin="normal"
                         required
                         sx={{
                           boxShadow: 1,
@@ -115,7 +117,7 @@ function App() {
                         inputProps={{ min: 1 }}
                         value={num2}
                         onChange={(e) => setNum2(e.target.value)}
-                        fullWidth 
+                        fullWidth
                         margin="normal"
                         required
                         sx={{
@@ -147,92 +149,106 @@ function App() {
             <Card
               sx={{ display: "flex", flexDirection: "column", height: "100%" }}
             >
-              <CardContent>
-                {cart.length > 0 ? (
-                  <>
-                    <Typography variant="h6" align="center" sx={{ mt: 2 }}>
-                      Productos en el carrito:
-                    </Typography>
+              <Suspense
+                fallback={
+                  <Skeleton variant="rectangular" width="100%" height={200} />
+                }
+              >
+                <CardContent>
+              
+                  {cart.length > 0 ? (
+                    <>
+                      {/* {!cart[0] && (
+                        <>
+                          <Skeleton />
+                          <Skeleton /> <Skeleton />
+                          <Skeleton /> <Skeleton />
+                          <Skeleton />
+                        </>
+                      )} */}
+                      <Typography variant="h6" align="center" sx={{ mt: 2 }}>
+                        Productos en el carrito:
+                      </Typography>
 
-                    <Box
-                      sx={{
-                        maxHeight: "300px",
-                        overflowY: "auto",
-                        mt: 2,
-                      }}
-                    >
-                      <Grid container spacing={2}>
-                        {cart.map((item) => (
-                          <Grid item xs={12} md={12} key={item.id}>
-                            <Card
-                              sx={{
-                                display: "flex",
-                                flexDirection: "row",
-                                alignItems: "left",
-                                boxShadow: 1,
-                                mb: 2,
-                                background: "rgba(227, 250, 250, 0.5)",
-                              }}
-                            >
-                              <CardContent
+                      <Box
+                        sx={{
+                          maxHeight: "300px",
+                          overflowY: "auto",
+                          mt: 2,
+                        }}
+                      >
+                        <Grid container spacing={2}>
+                          {cart.map((item) => (
+                            <Grid item xs={12} md={12} key={item.id}>
+                              <Card
                                 sx={{
                                   display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "space-between",
-                                  width: "100%",
+                                  flexDirection: "row",
+                                  alignItems: "left",
+                                  boxShadow: 1,
+                                  mb: 2,
+                                  background: "rgba(227, 250, 250, 0.5)",
                                 }}
                               >
-                                <img
-                                  src={item.image}
-                                  alt={item.title}
-                                  style={{ width: "50px", height: "50px" }}
-                                />
-                                <div>
-                                  <Typography
-                                    variant="body1"
-                                    sx={{
-                                      display: "flex",
-                                      textAlign: "left",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                    }}
-                                  >
-                                    Id item: {item.id}
-                                  </Typography>
-                                  <Typography
-                                    variant="body1"
-                                    sx={{
-                                      display: "flex",
-                                      textAlign: "left",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                    }}
-                                  >
-                                    {item.title}
-                                  </Typography>
-                                  <Box
-                                    display="flex"
-                                    alignItems="center"
-                                    sx={{ gap: "8px" }}
-                                  >
+                                <CardContent
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    width: "100%",
+                                  }}
+                                >
+                                  <img
+                                    src={item.image}
+                                    alt={item.title}
+                                    style={{ width: "50px", height: "50px" }}
+                                  />
+                                  <div>
                                     <Typography
-                                      variant="body1" 
+                                      variant="body1"
                                       sx={{
-                                        marginRight: "8px", 
                                         display: "flex",
-                                        alignItems: "center",
+                                        textAlign: "left",
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
                                       }}
                                     >
-                                      Cantidad:
+                                      Id item: {item.id}
                                     </Typography>
+                                    <Typography
+                                      variant="body1"
+                                      sx={{
+                                        display: "flex",
+                                        textAlign: "left",
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                      }}
+                                    >
+                                      {item.title}
+                                    </Typography>
+                                    <Box
+                                      display="flex"
+                                      alignItems="center"
+                                      sx={{ gap: "8px" }}
+                                    >
+                                      <Typography
+                                        variant="body1"
+                                        sx={{
+                                          marginRight: "8px",
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        Cantidad:
+                                      </Typography>
 
-                                    <TextField  variant="standard"
-                                      type="number"
-                                      value={item.quantity}
-                                      onChange={
-                                        (e) =>
+                                      <TextField
+                                        variant="standard"
+                                        type="number"
+                                        value={item.quantity}
+                                        onChange={(e) =>
                                           updateQuantity(
                                             item.id,
                                             Math.min(
@@ -240,66 +256,62 @@ function App() {
                                               10
                                             )
                                           )
-                                      }
-                                      inputProps={{ min: 1 }}
-                                      sx={{
-                                        width: "50px",
-                                        height: "30px",
-                                        fontSize: "0.875rem",
-                                        padding: "0 5px",
-                                      }}
-                                    />
+                                        }
+                                        inputProps={{ min: 1 }}
+                                        sx={{
+                                          width: "50px",
+                                          height: "30px",
+                                          fontSize: "0.875rem",
+                                          padding: "0 5px",
+                                        }}
+                                      />
 
-                                    <Typography
-                                      variant="body2"
-                                      sx={{ marginLeft: "8px" }}
-                                    >
-                                      Precio: ${item.price}
-                                    </Typography>
+                                      <Typography
+                                        variant="body2"
+                                        sx={{ marginLeft: "8px" }}
+                                      >
+                                        Precio: ${item.price}
+                                      </Typography>
 
-                                    <Button
-                                      variant="outlined"
-                                      color="secondary"
-                                      sx={{
-                                      }}
-                                      onClick={() => removeItem(item.id)}
-                                    >
-                                      X
-                                    </Button>
-                                    <DeleteForeverIcon   onClick={() => removeItem(item.id)} />
+                                      <DeleteForeverIcon
+                                        onClick={() => removeItem(item.id)}
+                                      />
+                                    </Box>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </Grid>
+                          ))}
+                        </Grid>
+                      </Box>
 
-                                  </Box>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    </Box>
-
-                    <Typography variant="h6" sx={{ mt: 2 }}>
-                      Total: ${calculateTotal()}
-                    </Typography>
-                  </>
-                ) : (
-                  <>
-                    <Typography variant="h5" align="center">
-                      ¡Tu carrito está vacío!
-                    </Typography>
-                    <Typography
-                      variant="subtitle1"
-                      align="center"
-                      sx={{ mt: 1 }}
-                    >
-                      Para comenzar, ingresa el <strong>ID del producto</strong>{" "}
-                      y la <strong>cantidad</strong> que deseas agregar a tu
-                      carrito.
-                      <br />
-                      Una vez que lo hayas hecho, el producto aparecerá aquí.
-                    </Typography>
-                  </>
-                )}
-              </CardContent>
+                      <Typography variant="h6" sx={{ mt: 2 }}>
+                        Total: ${calculateTotal()}
+                      </Typography>
+                    </>
+                  ) : (
+                    
+                    <>
+                     
+                      <Typography variant="h5" align="center">
+                        ¡Tu carrito está vacío!
+                      </Typography>
+                      <Typography
+                        variant="subtitle1"
+                        align="center"
+                        sx={{ mt: 1 }}
+                      >
+                        Para comenzar, ingresa el{" "}
+                        <strong>ID del producto</strong> y la{" "}
+                        <strong>cantidad</strong> que deseas agregar a tu
+                        carrito.
+                        <br />
+                        Una vez que lo hayas hecho, el producto aparecerá aquí.
+                      </Typography>
+                    </>
+                  )}
+                </CardContent>
+              </Suspense>
             </Card>
           </Grid>
         </Grid>
