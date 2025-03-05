@@ -1,13 +1,41 @@
-// src/hooks/useCart.ts
-
 import { useEffect, useState } from "react";
 
 import { Product } from "../types/types";
+import { useOptimistic } from "react";
+
+type CartAction =
+  | { type: "add"; product: Product }
+  | { type: "update"; id: number; quantity: number }
+  | { type: "remove"; id: number };
 
 export const useCart = () => {
   const [cart, setCart] = useState<Product[]>([]);
+  const [optimisticCart, setOptimisticCart] = useOptimistic(cart, (state, action:CartAction) => {
+    switch (action.type) {
+      case "add":
+        const existingItem = state.find((item) => item.id === action.product.id);
+        if (existingItem) {
+          return state.map((item) =>
+            item.id === action.product.id
+              ? { ...item, quantity: item.quantity + action.product.quantity }
+              : item
+          );
+        }
+        return [...state, action.product];
 
-  // Cargar el carrito desde localStorage solo si existe algo
+      case "update":
+        return state.map((item) =>
+          item.id === action.id ? { ...item, quantity: Math.max(action.quantity, 1) } : item
+        );
+
+      case "remove":
+        return state.filter((item) => item.id !== action.id);
+
+      default:
+        return state;
+    }
+  });
+
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) {
@@ -15,50 +43,35 @@ export const useCart = () => {
     }
   }, []);
 
-  // Guardar el carrito en localStorage cada vez que cambie
   useEffect(() => {
     if (cart.length > 0) {
       localStorage.setItem("cart", JSON.stringify(cart));
     }
   }, [cart]);
 
-  // Agregar un producto al carrito
   const addToCart = (product: Product) => {
-    setCart((prevCart) => {
-      const existingProduct = prevCart.find((item) => item.id === product.id);
-      if (existingProduct) {
-        return prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + product.quantity }
-            : item
-        );
-      }
-      return [...prevCart, product];
-    });
+    setOptimisticCart({ type: "add", product });
+    setCart((prev) => [...prev, product]);
   };
 
-  // Actualizar la cantidad de un producto en el carrito
   const updateQuantity = (id: number, quantity: number) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(quantity, 1) } : item
-      )
+    setOptimisticCart({ type: "update", id, quantity });
+    setCart((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, quantity: Math.max(quantity, 1) } : item))
     );
   };
 
-  // Eliminar un producto del carrito
   const removeItem = (id: number) => {
-    const updatedCart = cart.filter((item) => item.id !== id);
-    setCart(updatedCart);
+    setOptimisticCart({ type: "remove", id });
+    setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // Calcular el total del carrito
   const calculateTotal = (): string => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
+    return optimisticCart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
   };
 
   return {
-    cart,
+    cart: optimisticCart,
     addToCart,
     updateQuantity,
     removeItem,
